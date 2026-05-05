@@ -2,29 +2,58 @@ from mixed_naive_bayes import MixedNB
 import numpy as np
 import pandas as pd
 import copy
+from sklearn.preprocessing import LabelEncoder
 
+#needs to be passes categorical_columns now (list of indicies of the categorical features)   = [1, 2, 5, 6, 8, 10, 12]
 class NaiveBayes:
     def __init__(self, class_info: tuple[str, list[str]], feature_info: dict[str, list[str]], categorical_columns: list[int]):
         self.class_info = class_info # (class_name, permitted_values)
         self.feature_info = feature_info
         self.inner_nb = MixedNB(categorical_features=categorical_columns)
 
-    def fit(self, x: pd.DataFrame, y: pd.Series):
-        # FIX: Use the passed x and y instead of 'training_data'
-        # The library expects numpy arrays
-        features_train = x.values
-        class_train = y.values
-        self.inner_nb.fit(features_train, class_train)
+    def fit(self, training_data: pd.DataFrame):
+        #need to turn df into a 2d list for MixedNB to use it
+        data_copy = training_data.copy()
+        label_encoder = LabelEncoder()
+        
+        #need to encode the text based categorical features
+        columns_to_encode = [1, 2, 6, 10, 12] 
+        for col in columns_to_encode:
+            col_name = data_copy.columns[col]
+            data_copy[col_name] = label_encoder.fit_transform(data_copy[col_name])
+        #split the data into 2.
+        # x is a 2D list of all the values
+        # y is a list of just the class column
+
+        #first split them
+        x_df = data_copy.iloc[:, :-1]
+        y_df = data_copy.iloc[:, -1]
+        # for MixedNB's 'fit' to work we need to assign numeric values to the target column
+        y_numbered = label_encoder.fit_transform(y_df)
+
+        #fit only takes list so chnage to right format
+        x = x_df.values.tolist()
+        y = y_numbered.tolist() 
+        self.inner_nb.fit(x, y)
 
     def predict(self, testing_data: pd.DataFrame) -> pd.DataFrame:
-        class_name = self.class_info[0]
-        # Drop class column if present to get features only
-        features_test = testing_data.drop(class_name, axis=1, errors='ignore').values
-        
-        predicted_class = self.inner_nb.predict(features_test)
-        
+        data_copy = testing_data.copy()
+        #we encoded the target field so need to call it back to unconvert them
+        label_encoder = LabelEncoder()
+        #encode the values for the model again
+        columns_to_encode = [1, 2, 6, 10, 12]
+        for col in columns_to_encode:
+            col_name = data_copy.columns[col]
+            data_copy[col_name] = label_encoder.fit_transform(data_copy[col_name])
+        x_test = data_copy.iloc[:, :-1].values.tolist()
+        #getting the number representations of the predicted classes
+        numeric_predictions = self.inner_nb.predict(x_test)
+        #make the key
+        class_labels = self.class_info[1]
+        #convert back and send
+        string_predictions = [class_labels[int(i)] for i in numeric_predictions]
         classified_data = testing_data.copy()
-        classified_data['PredictedClass'] = predicted_class
+        classified_data['PredictedClass'] = string_predictions
         return classified_data
 
     def retrieve_class_probability(self, class_value: str) -> float:
