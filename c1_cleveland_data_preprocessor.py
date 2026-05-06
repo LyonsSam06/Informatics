@@ -74,7 +74,6 @@ def handle_missing_data(data: pd.DataFrame) -> pd.DataFrame:
     else:
         for column in data:
             try:
-                #data[column] = SimpleImputer(strategy="mean").fit_transform(data[column])
                 data[column] = IterativeImputer(random_state=0).fit_transform(data[column])
             except:
                 pass
