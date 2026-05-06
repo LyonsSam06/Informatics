@@ -103,12 +103,12 @@ def handle_outliers(data: pd.DataFrame) -> pd.DataFrame:
 def preprocess(data: pd.DataFrame, class_name: str) -> tuple[pd.DataFrame, pd.DataFrame]:
     dataset = copy.deepcopy(data)
 
+    # We handle missing entries
+    dataset = handle_missing_data(dataset)
+
     # handle outliers
     # as missing entries are already filtered out, we don't have to worry about them
     dataset = handle_outliers(dataset)
-
-    # We handle missing entries
-    dataset = handle_missing_data(dataset)
 
     # We shuffle the dataset and split it between testing and training data
     dataset = dataset.sample(frac=1)
