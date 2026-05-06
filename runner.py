@@ -20,27 +20,13 @@ class_name = 'target'
 # The process used here is ugly. Don't worry about it. You will be improving on it in a different assessment :)
 training_data, testing_data = preprocess(dataset, class_name)
 
-#balances the training data using random oversampling, applied to multiple for love of the game
-# training_data = balance_dataset(training_data, "age")
-# training_data = balance_dataset(training_data, "cp")
-# training_data = balance_dataset(training_data, "trestbps")
-# training_data = balance_dataset(training_data, "chol")
-# training_data = balance_dataset(training_data, "fbs")
-# training_data = balance_dataset(training_data, "restecg")
-# training_data = balance_dataset(training_data, "thalach")
-# training_data = balance_dataset(training_data, "exang")
-# training_data = balance_dataset(training_data, "oldpeak")
-# training_data = balance_dataset(training_data, "slope")
-# training_data = balance_dataset(training_data, "ca")
-# training_data = balance_dataset(training_data, "thal")
-
 
 # We extract some data for booting up our classifier
 full_data = pd.concat([training_data, testing_data])
 
 #balance AFTER full data
 training_data = balance_dataset(training_data, "sex")
-
+training_data = balance_dataset(training_data, "target")
 
 feature_info = {col: sorted(full_data[col].unique().tolist()) for col in full_data.columns}
 class_values = feature_info.pop(class_name, None)
