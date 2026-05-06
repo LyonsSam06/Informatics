@@ -60,3 +60,5 @@ print(evaluator.evaluate_classification(true_classes, predicted_classes))
 # Ethical evaluation is made based on the 'sex' column
 print(evaluator.compute_group_fairness_ethical_evaluation(true_classes, predicted_classes, testing_data['sex']))
 
+# NEW individual fairness (FTA) evaluation 
+print(evaluator.fairness_through_awareness(testing_data, predicted_classes))
