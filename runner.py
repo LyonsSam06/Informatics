@@ -32,7 +32,9 @@ feature_info = {col: sorted(full_data[col].unique().tolist()) for col in full_da
 class_values = feature_info.pop(class_name, None)
 
 # Classifier is created, trained, and predictions are made
-nb_classifier = NaiveBayes((class_name, class_values), feature_info)
+categorical_columns = [1, 2, 5, 6, 8, 10, 12]
+
+nb_classifier = NaiveBayes((class_name, class_values), feature_info, categorical_columns)
 nb_classifier.fit(training_data)
 classified_data = nb_classifier.predict(testing_data)
 
